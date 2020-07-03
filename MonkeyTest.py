@@ -5,6 +5,15 @@
 import time
 import unittest
 
+import multiprocessing
+import platform
+from multiprocessing import Event
+
+if platform.system() == 'Darwin':
+    from mac.support import MultiProcessingQueue as Queue
+else:
+    from multiprocessing import Queue
+
 
 class MyTestCaseForFakeUA(unittest.TestCase):
     def test(self):
@@ -27,11 +36,10 @@ class MyTestCaseForGetFundList(unittest.TestCase):
 
 class MyTestCaseForCrawlingWebpage(unittest.TestCase):
     def test_for_get_page_context(self):
-        from multiprocessing import Queue, Event
         from CrawlingWebpage import GetPageByWebWithAnotherProcessAndMultiThreading
 
-        input_queue = Queue()
-        output_queue = Queue()
+        input_queue = Queue(ctx=multiprocessing.get_context())
+        output_queue = Queue(ctx=multiprocessing.get_context())
         exit_after_finish = Event()
         test = GetPageByWebWithAnotherProcessAndMultiThreading(input_queue, output_queue, exit_after_finish)
         test.start()

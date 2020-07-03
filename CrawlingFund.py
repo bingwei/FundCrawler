@@ -2,11 +2,20 @@
 """
 爬取基金信息的主文件
 """
+import sys
+sys.path.append(".")
 import time
-from multiprocessing import Queue, Event
+
+import multiprocessing
+import platform
+from multiprocessing import Event
+
+if platform.system() == 'Darwin':
+    from mac.support import MultiProcessingQueue as Queue
+else:
+    from multiprocessing import Queue
 
 from requests.exceptions import RequestException
-
 from CrawlingWebpage import GetPageByWebWithAnotherProcessAndMultiThreading
 from ParsingHtml import ParseDefault
 from ProvideTheListOfFund import GetFundList, GetFundListByWeb, GetFundListTest
@@ -94,8 +103,8 @@ def crawling_fund(fund_list_class: GetFundList, first_crawling=True):
     line_progress = None if LineProgress is None else LineProgress(title='爬取进度')
     cur_process = 0
     # 爬取输入、输出队列，输入结束事件，网络状态事件，爬取核心
-    input_queue = Queue()
-    result_queue = Queue()
+    input_queue = Queue(ctx=multiprocessing.get_context())
+    result_queue = Queue(ctx=multiprocessing.get_context())
     finish_sign = Event()
     network_health = Event()
     crawling_core = GetPageByWebWithAnotherProcessAndMultiThreading(input_queue, result_queue, finish_sign,

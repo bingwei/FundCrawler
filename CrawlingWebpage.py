@@ -4,7 +4,14 @@
 """
 import threading
 from abc import ABC
-from multiprocessing import Process, Queue, Event
+from multiprocessing import Process, Event
+import multiprocessing
+import platform
+
+if platform.system() == 'Darwin':
+    from mac.support import MultiProcessingQueue as Queue
+else:
+    from multiprocessing import Queue
 from time import time, sleep
 
 from FakeUA import fake_ua
